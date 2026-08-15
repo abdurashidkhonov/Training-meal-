@@ -169,6 +169,16 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:'Montserra
 
 /* NUTRITION */
 .macro-card{background:var(--s1);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin:0 16px 12px}
+
+/* RINGS */
+.rings-card{background:var(--s1);border:1px solid var(--b);border-radius:var(--r);padding:18px 12px;margin:0 16px 12px;display:flex;justify-content:space-around}
+.ring-wrap{position:relative;width:76px;height:76px}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--s2);stroke-width:7}
+.ring-fg{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .6s cubic-bezier(.22,1,.36,1)}
+.ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-size:15px;font-weight:800;color:var(--t)}
+.ring-name{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
 .macro-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
 .macro-cal-big{font-size:30px;font-weight:800;color:var(--ac);letter-spacing:-1px}
 .macro-cal-sub{font-size:12px;color:var(--t2)}
@@ -235,6 +245,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:'Montserra
         </div>
       </div>
 
+      <!-- RINGS -->
+      <div class="rings-card" id="rings-card"></div>
+
       <!-- PROFILE MODAL -->
       <div class="fav-modal" id="profile-modal">
         <div style="font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="color:var(--ac)"><line x1="4" y1="7" x2="20" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="14" cy="7" r="2.2" fill="currentColor"/><line x1="4" y1="17" x2="20" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="10" cy="17" r="2.2" fill="currentColor"/></svg> Профиль и цели</div>
@@ -262,28 +275,13 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:'Montserra
         </div>
       </div>
 
-      <!-- MACROS DASHBOARD -->
-      <div class="macro-card">
-        <div class="macro-top">
-          <div><div class="macro-cal-big" style="display:flex;align-items:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M12 3v6M12 15v6M3 12h6M15 12h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span id="mc-cal-eaten">0</span></div><div class="macro-cal-sub">из <span id="mc-cal-target">0</span> ккал</div></div>
-          <div class="macro-remain">Осталось<br><b id="mc-cal-remain">0</b> ккал</div>
-        </div>
-        <div class="pbar-wrap" style="margin-bottom:0">
-          <div class="pbar-lbl"><span>Белок</span><b><span id="mp-p-eaten">0</span>/<span id="mp-p-target">0</span> г</b></div>
-          <div class="pbar-bg"><div class="pbar-fill p" id="mp-p-bar" style="width:0%"></div></div>
-        </div>
-        <div class="pbar-wrap" style="display:none">
-          <div class="pbar-lbl"><span>Жиры</span><b><span id="mp-f-eaten">0</span>/<span id="mp-f-target">0</span> г</b></div>
-          <div class="pbar-bg"><div class="pbar-fill f" id="mp-f-bar" style="width:0%"></div></div>
-        </div>
-        <div class="pbar-wrap" style="display:none">
-          <div class="pbar-lbl"><span>Углеводы</span><b><span id="mp-c-eaten">0</span>/<span id="mp-c-target">0</span> г</b></div>
-          <div class="pbar-bg"><div class="pbar-fill c" id="mp-c-bar" style="width:0%"></div></div>
-        </div>
-        <div class="pbar-wrap" style="margin-bottom:0;display:none">
-          <div class="pbar-lbl"><span>Клетчатка</span><b><span id="mp-fib-eaten">0</span>/<span id="mp-fib-target">0</span> г</b></div>
-          <div class="pbar-bg"><div class="pbar-fill fib" id="mp-fib-bar" style="width:0%"></div></div>
-        </div>
+      <!-- MACROS DASHBOARD (hidden, kept for JS refs) -->
+      <div style="display:none">
+        <span id="mc-cal-eaten">0</span><span id="mc-cal-target">0</span><b id="mc-cal-remain">0</b>
+        <span id="mp-p-eaten">0</span><span id="mp-p-target">0</span><div id="mp-p-bar"></div>
+        <span id="mp-f-eaten">0</span><span id="mp-f-target">0</span><div id="mp-f-bar"></div>
+        <span id="mp-c-eaten">0</span><span id="mp-c-target">0</span><div id="mp-c-bar"></div>
+        <span id="mp-fib-eaten">0</span><span id="mp-fib-target">0</span><div id="mp-fib-bar"></div>
       </div>
 
       <!-- WATER -->
@@ -293,17 +291,18 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:'Montserra
         <div class="water-row">
           <button class="water-btn" onclick="addWater(250)">+250</button>
           <button class="water-btn" onclick="addWater(500)">+500</button>
-          <button class="water-btn" onclick="addWater(750)">+750</button>
-          <button class="water-btn" onclick="addWater(1000)">+1000</button>
           <button class="water-btn" onclick="resetWater()" style="color:var(--red)">Сброс</button>
         </div>
       </div>
 
       <!-- STEPS -->
       <div class="macro-card">
-        <div class="pbar-lbl" style="margin-bottom:6px"><span>🚶 Шаги</span><b id="mp-steps-target-lbl">0</b></div>
-        <div class="steps-row">
-          <input class="steps-inp" id="steps-inp" type="number" placeholder="Введите шаги за день" inputmode="numeric" onchange="saveSteps(this.value)">
+        <div class="pbar-lbl" style="margin-bottom:6px"><span style="display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 20l1.5-6M18 20l-1.5-6M9 10l1-4M15 10l-1-4M9.5 14l2-3.5 2 1 2.5-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Шаги</span><b><span id="mp-steps-eaten">0</span>/<span id="mp-steps-target">0</span></b></div>
+        <div class="pbar-bg"><div class="pbar-fill w" id="mp-steps-bar" style="width:0%"></div></div>
+        <div class="water-row">
+          <button class="water-btn" onclick="addSteps(500)">+500</button>
+          <button class="water-btn" onclick="addSteps(1000)">+1000</button>
+          <button class="water-btn" onclick="resetSteps()" style="color:var(--red)">Сброс</button>
         </div>
       </div>
 
@@ -1112,11 +1111,19 @@ function resetWater(){
 }
 
 /* ---- STEPS ---- */
-function saveSteps(val){
+function addSteps(n){
   const t=todayStr();
   if(!waterLog._steps)waterLog._steps={};
-  waterLog._steps[t]=parseInt(val)||0;
+  waterLog._steps[t]=(waterLog._steps[t]||0)+n;
   saveWaterData();
+  renderNutrition();
+}
+function resetSteps(){
+  const t=todayStr();
+  if(!waterLog._steps)waterLog._steps={};
+  waterLog._steps[t]=0;
+  saveWaterData();
+  renderNutrition();
 }
 
 /* ---- WEIGHT ---- */
@@ -1167,6 +1174,19 @@ function renderWeight(){
 }
 
 /* ---- MAIN RENDER ---- */
+function ringHTML(pct,color,label,valText){
+  const r=32.5,c=2*Math.PI*r;
+  const clamped=Math.max(0,Math.min(100,pct));
+  const off=c*(1-clamped/100);
+  return `<div class="ring-wrap">
+    <svg viewBox="0 0 72 72" width="76" height="76">
+      <circle class="ring-bg" cx="36" cy="36" r="${r}"/>
+      <circle class="ring-fg" cx="36" cy="36" r="${r}" stroke="${color}" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>
+    </svg>
+    <div class="ring-label"><div class="ring-pct">${Math.round(clamped)}%</div><div class="ring-name">${label}</div></div>
+  </div>`;
+}
+
 function renderNutrition(){
   if(!profile.weight)profile={...DEFAULT_PROFILE,...profile};
   const t=todayStr();
@@ -1189,6 +1209,11 @@ function renderNutrition(){
   document.getElementById('mc-cal-target').textContent=targetCal.toLocaleString();
   document.getElementById('mc-cal-remain').textContent=Math.max(0,Math.round(targetCal-eaten.cal)).toLocaleString();
 
+  document.getElementById('rings-card').innerHTML=
+    ringHTML(eaten.cal/targetCal*100,'#3d7fff','Калории')+
+    ringHTML(eaten.protein/targetProtein*100,'#6ba3ff','Белок')+
+    ringHTML((waterLog[t]||0)/targetWater*100,'#38bdf8','Вода');
+
   const setBar=(prefix,val,target)=>{
     document.getElementById(`mp-${prefix}-eaten`).textContent=Math.round(val);
     document.getElementById(`mp-${prefix}-target`).textContent=Math.round(target);
@@ -1204,9 +1229,10 @@ function renderNutrition(){
   document.getElementById('mp-w-target').textContent=targetWater;
   document.getElementById('mp-w-bar').style.width=Math.min(100,(waterVal/targetWater*100)||0)+'%';
 
-  document.getElementById('mp-steps-target-lbl').textContent='цель '+targetSteps.toLocaleString();
-  const stepsVal=(waterLog._steps&&waterLog._steps[t])||'';
-  document.getElementById('steps-inp').value=stepsVal;
+  document.getElementById('mp-steps-target').textContent=targetSteps.toLocaleString();
+  const stepsVal=(waterLog._steps&&waterLog._steps[t])||0;
+  document.getElementById('mp-steps-eaten').textContent=stepsVal.toLocaleString();
+  document.getElementById('mp-steps-bar').style.width=Math.min(100,(stepsVal/targetSteps*100)||0)+'%';
 
   // food log list
   const list=document.getElementById('food-log-list');
