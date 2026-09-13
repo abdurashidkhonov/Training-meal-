@@ -365,7 +365,14 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:'Montserra
         <div class="macro-card" style="margin:0">
           <div style="display:flex;gap:8px;margin-bottom:8px">
             <input class="inp" id="fd-name" placeholder="Название..." style="flex:1" autocomplete="off">
-            <button class="mic-btn" id="voice-mic-btn" onclick="toggleVoiceInput()" title="Голосовой ввод">
+            <button class="mic-btn" id="voice-mic-btn"
+              onpointerdown="startVoiceRecording(event)"
+              onpointerup="stopVoiceRecording(event)"
+              onpointerleave="stopVoiceRecording(event)"
+              onpointercancel="stopVoiceRecording(event)"
+              oncontextmenu="event.preventDefault();return false"
+              style="touch-action:none;-webkit-user-select:none;user-select:none"
+              title="Удерживайте и говорите">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" stroke-width="2"/><path d="M6 11a6 6 0 0 0 12 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             </button>
           </div>
@@ -1167,9 +1174,11 @@ function addFoodFav(){
 function remFoodFav(i){favFoods.splice(i,1);saveFavFoodsData();renderFoodFavList();}
 
 /* ---- FOOD LOG ---- */
-/* ---- VOICE INPUT ---- */
+/* ---- VOICE INPUT (press and hold) ---- */
 let voiceRecognition=null;
 let voiceListening=false;
+let voiceTranscript='';
+let voiceStartedAt=0;
 
 function parseVoiceFood(text){
   let name=text;
@@ -1194,51 +1203,64 @@ function parseVoiceFood(text){
   return {name,...vals};
 }
 
-function toggleVoiceInput(){
+function startVoiceRecording(e){
+  if(e)e.preventDefault();
+  if(voiceListening)return;
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){
     alert('Голосовой ввод не поддерживается в этом браузере. Попробуйте Chrome или Safari.');
     return;
   }
-  if(voiceListening){
-    voiceRecognition&&voiceRecognition.stop();
-    return;
-  }
   voiceRecognition=new SR();
   voiceRecognition.lang='ru-RU';
   voiceRecognition.interimResults=true;
+  voiceRecognition.continuous=true;
   voiceRecognition.maxAlternatives=1;
+  voiceTranscript='';
+  voiceStartedAt=Date.now();
 
   const btn=document.getElementById('voice-mic-btn');
   const status=document.getElementById('voice-status');
   status.style.display='';
-  status.textContent='Слушаю... Скажите название и данные';
+  status.textContent='Слушаю... удерживайте и говорите';
   btn.classList.add('listening');
   voiceListening=true;
 
-  voiceRecognition.onresult=(e)=>{
+  voiceRecognition.onresult=(ev)=>{
     let transcript='';
-    for(let i=0;i<e.results.length;i++)transcript+=e.results[i][0].transcript;
+    for(let i=0;i<ev.results.length;i++)transcript+=ev.results[i][0].transcript;
+    voiceTranscript=transcript;
     status.textContent='«'+transcript+'»';
-    if(e.results[e.results.length-1].isFinal){
-      const parsed=parseVoiceFood(transcript);
+  };
+  voiceRecognition.onerror=()=>{
+    status.textContent='Не удалось распознать речь. Попробуйте ещё раз.';
+  };
+  voiceRecognition.onend=()=>{
+    voiceListening=false;
+    btn.classList.remove('listening');
+    if(voiceTranscript.trim()){
+      const parsed=parseVoiceFood(voiceTranscript);
       document.getElementById('fd-name').value=parsed.name;
       document.getElementById('fd-cal').value=parsed.cal;
       document.getElementById('fd-protein').value=parsed.protein;
       document.getElementById('fd-fat').value=parsed.fat;
       document.getElementById('fd-carbs').value=parsed.carbs;
       status.textContent=`Распознано: ${parsed.name} · ${parsed.cal} ккал · ${parsed.protein}г белка. Проверьте и нажмите «Добавить»`;
+      setTimeout(()=>{status.style.display='none';},4500);
+    } else {
+      status.textContent='Речь не распознана. Удерживайте кнопку и говорите чётче.';
+      setTimeout(()=>{status.style.display='none';},2500);
     }
   };
-  voiceRecognition.onerror=(e)=>{
-    status.textContent='Не удалось распознать речь. Попробуйте ещё раз.';
-  };
-  voiceRecognition.onend=()=>{
-    voiceListening=false;
-    btn.classList.remove('listening');
-    setTimeout(()=>{if(!voiceListening)status.style.display='none';},4000);
-  };
-  voiceRecognition.start();
+  try{voiceRecognition.start();}catch(err){}
+}
+
+function stopVoiceRecording(e){
+  if(e)e.preventDefault();
+  if(!voiceListening||!voiceRecognition)return;
+  // avoid stopping instantly on stray events before recognition actually engaged
+  if(Date.now()-voiceStartedAt<150)return;
+  try{voiceRecognition.stop();}catch(err){}
 }
 
 function addFoodEntry(){
