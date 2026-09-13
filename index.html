@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Workout">
@@ -25,7 +25,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 input,button,select,textarea{font-family:inherit}
 html,body{height:100%;background:radial-gradient(circle at 12% 8%,rgba(10,132,255,0.32),transparent 42%),radial-gradient(circle at 88% 14%,rgba(100,210,255,0.16),transparent 40%),radial-gradient(circle at 80% 95%,rgba(94,92,230,0.28),transparent 45%),radial-gradient(circle at 10% 90%,rgba(48,209,88,0.10),transparent 40%),#000000;background-attachment:fixed;color:var(--t);font-family:'Montserrat',-apple-system,BlinkMacSystemFont,sans-serif;overflow:hidden}
-.app{display:flex;flex-direction:column;height:100svh}
+.app{display:flex;flex-direction:column;height:100svh;padding-top:env(safe-area-inset-top,0px)}
 .content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 .content::-webkit-scrollbar{display:none}
 .nav{display:flex;background:rgba(255,255,255,0.09);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);border:1px solid rgba(255,255,255,0.15);border-radius:24px;padding:10px 4px;margin:0 12px calc(12px + var(--safe-b)) 12px;z-index:20;box-shadow:0 10px 34px rgba(0,0,0,.45)}
