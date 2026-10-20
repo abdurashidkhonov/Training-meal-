@@ -308,13 +308,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:'Montserra
           <div class="nf"><label>Возраст</label><input class="inp-sm" id="pf-age" type="number"></div>
         </div>
         <div style="font-size:11px;color:var(--t3);margin:10px 0 6px">Целевые показатели (можно скорректировать вручную)</div>
-        <div class="food-add-grid">
+        <div class="food-add-grid" style="grid-template-columns:1fr 1fr">
           <div class="nf"><label>Ккал</label><input class="inp-sm" id="pf-cal" type="number"></div>
           <div class="nf"><label>Белок г</label><input class="inp-sm" id="pf-protein" type="number"></div>
-          <div class="nf"><label>Вода мл</label><input class="inp-sm" id="pf-water" type="number"></div>
-        </div>
-        <div class="food-add-grid" style="grid-template-columns:1fr">
-          <div class="nf"><label>Шаги</label><input class="inp-sm" id="pf-steps" type="number"></div>
         </div>
         <div style="display:none">
           <input id="pf-fat" type="number"><input id="pf-fiber" type="number">
@@ -333,28 +329,6 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:'Montserra
         <span id="mp-f-eaten">0</span><span id="mp-f-target">0</span><div id="mp-f-bar"></div>
         <span id="mp-c-eaten">0</span><span id="mp-c-target">0</span><div id="mp-c-bar"></div>
         <span id="mp-fib-eaten">0</span><span id="mp-fib-target">0</span><div id="mp-fib-bar"></div>
-      </div>
-
-      <!-- WATER -->
-      <div class="macro-card">
-        <div class="pbar-lbl" style="margin-bottom:6px"><span style="display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3c3.4 4.1 6 7.5 6 10.3a6 6 0 0 1-12 0C6 10.5 8.6 7.1 12 3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg> Вода</span><b><span id="mp-w-eaten">0</span>/<span id="mp-w-target">0</span> мл</b></div>
-        <div class="pbar-bg"><div class="pbar-fill w" id="mp-w-bar" style="width:0%"></div></div>
-        <div class="water-row">
-          <button class="water-btn" onclick="addWater(250)">+250</button>
-          <button class="water-btn" onclick="addWater(500)">+500</button>
-          <button class="water-btn" onclick="resetWater()" style="color:var(--red)">Сброс</button>
-        </div>
-      </div>
-
-      <!-- STEPS -->
-      <div class="macro-card">
-        <div class="pbar-lbl" style="margin-bottom:6px"><span style="display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 20l1.5-6M18 20l-1.5-6M9 10l1-4M15 10l-1-4M9.5 14l2-3.5 2 1 2.5-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Шаги</span><b><span id="mp-steps-eaten">0</span>/<span id="mp-steps-target">0</span></b></div>
-        <div class="pbar-bg"><div class="pbar-fill w" id="mp-steps-bar" style="width:0%"></div></div>
-        <div class="water-row">
-          <button class="water-btn" onclick="addSteps(500)">+500</button>
-          <button class="water-btn" onclick="addSteps(1000)">+1000</button>
-          <button class="water-btn" onclick="resetSteps()" style="color:var(--red)">Сброс</button>
-        </div>
       </div>
 
       <!-- TODAY'S WORKOUT -->
@@ -1167,8 +1141,6 @@ function toggleProfileModal(){
     document.getElementById('pf-protein').value=profile.targetProtein;
     document.getElementById('pf-fat').value=profile.targetFat;
     document.getElementById('pf-fiber').value=profile.targetFiber;
-    document.getElementById('pf-water').value=profile.targetWater;
-    document.getElementById('pf-steps').value=profile.targetSteps;
     updateProfileCalcInfo();
   }
 }
@@ -1194,7 +1166,6 @@ function recalcFromProfile(){
   document.getElementById('pf-protein').value=targetProtein;
   document.getElementById('pf-fat').value=65;
   document.getElementById('pf-fiber').value=30;
-  document.getElementById('pf-water').value=Math.round(w*35/50)*50;
   updateProfileCalcInfo();
 }
 
@@ -1206,8 +1177,6 @@ function saveProfileModal(){
   profile.targetProtein=parseFloat(document.getElementById('pf-protein').value)||DEFAULT_PROFILE.targetProtein;
   profile.targetFat=parseFloat(document.getElementById('pf-fat').value)||DEFAULT_PROFILE.targetFat;
   profile.targetFiber=parseFloat(document.getElementById('pf-fiber').value)||DEFAULT_PROFILE.targetFiber;
-  profile.targetWater=parseFloat(document.getElementById('pf-water').value)||DEFAULT_PROFILE.targetWater;
-  profile.targetSteps=parseFloat(document.getElementById('pf-steps').value)||DEFAULT_PROFILE.targetSteps;
   saveProfileData();
   document.getElementById('profile-modal').classList.remove('show');
   renderNutrition();
@@ -1510,8 +1479,6 @@ function renderNutrition(){
   const targetProtein=profile.targetProtein||DEFAULT_PROFILE.targetProtein;
   const targetFat=profile.targetFat||DEFAULT_PROFILE.targetFat;
   const targetFiber=profile.targetFiber||DEFAULT_PROFILE.targetFiber;
-  const targetWater=profile.targetWater||DEFAULT_PROFILE.targetWater;
-  const targetSteps=profile.targetSteps||DEFAULT_PROFILE.targetSteps;
   const targetCarbs=getTargetCarbs();
 
   document.getElementById('mc-cal-eaten').textContent=Math.round(eaten.cal).toLocaleString();
@@ -1520,8 +1487,7 @@ function renderNutrition(){
 
   document.getElementById('rings-card').innerHTML=
     ringHTML(eaten.cal/targetCal*100,'#0A84FF','Калории')+
-    ringHTML(eaten.protein/targetProtein*100,'#64D2FF','Белок')+
-    ringHTML((waterLog[t]||0)/targetWater*100,'#5E5CE6','Вода');
+    ringHTML(eaten.protein/targetProtein*100,'#64D2FF','Белок');
 
   const setBar=(prefix,val,target)=>{
     document.getElementById(`mp-${prefix}-eaten`).textContent=Math.round(val);
@@ -1532,16 +1498,6 @@ function renderNutrition(){
   setBar('f',eaten.fat,targetFat);
   setBar('c',eaten.carbs,targetCarbs);
   setBar('fib',eaten.fiber,targetFiber);
-
-  const waterVal=waterLog[t]||0;
-  document.getElementById('mp-w-eaten').textContent=waterVal;
-  document.getElementById('mp-w-target').textContent=targetWater;
-  document.getElementById('mp-w-bar').style.width=Math.min(100,(waterVal/targetWater*100)||0)+'%';
-
-  document.getElementById('mp-steps-target').textContent=targetSteps.toLocaleString();
-  const stepsVal=(waterLog._steps&&waterLog._steps[t])||0;
-  document.getElementById('mp-steps-eaten').textContent=stepsVal.toLocaleString();
-  document.getElementById('mp-steps-bar').style.width=Math.min(100,(stepsVal/targetSteps*100)||0)+'%';
 
   // food log list
   const list=document.getElementById('food-log-list');
