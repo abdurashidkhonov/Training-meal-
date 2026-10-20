@@ -9,20 +9,30 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0a0a0c">
 <script>
-// iOS home-screen apps report a viewport shorter than the screen, leaving a black strip at the bottom
+// iOS home-screen apps report a viewport shorter than the screen, leaving a black strip at the bottom.
+// Take the largest of: window height, a 100vh probe, and (in standalone mode) the physical screen height.
 (function(){
+  var probe=null;
   function fixHeight(){
-    var standalone=navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);
-    var h=window.innerHeight;
+    var standalone=!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));
+    var h=window.innerHeight,vh=0,full=0;
+    if(standalone&&document.body){
+      if(!probe){probe=document.createElement('div');probe.style.cssText='position:fixed;top:0;left:0;width:0;height:100vh;visibility:hidden;pointer-events:none';document.body.appendChild(probe);}
+      vh=probe.offsetHeight;if(vh>h)h=vh;
+    }
     if(standalone){
-      var full=window.innerWidth<window.innerHeight?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height);
+      full=window.innerWidth<window.innerHeight?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height);
       if(full>h)h=full;
     }
     document.documentElement.style.setProperty('--app-h',h+'px');
+    window.__hfix={standalone:standalone,inner:window.innerHeight,vh:vh,screen:full,used:h};
   }
   fixHeight();
-  window.addEventListener('resize',fixHeight);
+  ['resize','load','pageshow'].forEach(function(e){window.addEventListener(e,fixHeight);});
+  document.addEventListener('DOMContentLoaded',fixHeight);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)fixHeight();});
   window.addEventListener('orientationchange',function(){setTimeout(fixHeight,300);});
+  [150,600,1500].forEach(function(t){setTimeout(fixHeight,t);});
 })();
 </script>
 <title>Workout</title>
@@ -79,6 +89,7 @@ html,body{height:var(--app-h,100%);background:var(--bg);color:var(--t);font-fami
 .settings-menu{position:fixed;right:12px;bottom:calc(88px + var(--safe-b));width:min(320px,calc(100% - 24px));z-index:41;background:var(--s2);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);border:1px solid var(--b2);border-radius:22px;padding:14px;box-shadow:0 14px 40px rgba(0,0,0,.35);opacity:0;transform:translateY(10px) scale(.96);transform-origin:bottom right;pointer-events:none;transition:opacity .2s ease,transform .25s cubic-bezier(.22,1,.36,1)}
 .settings-menu.show{opacity:1;transform:none;pointer-events:auto}
 .settings-menu .weight-card{margin:0}
+.app-ver{font-size:10px;color:var(--t3);text-align:center;margin-top:12px;line-height:1.4}
 .settings-title{font-size:15px;font-weight:800;color:var(--t);margin:0 2px 12px}
 /* top exercises chart: series colours (dark default, light override) */
 :root{--c1:#3987e5;--c2:#d95926;--c3:#199e70}
@@ -699,6 +710,7 @@ html,body{height:var(--app-h,100%);background:var(--bg);color:var(--t);font-fami
           </div>
           <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(this.files[0])">
         </div>
+    <div class="app-ver" id="app-ver"></div>
   </div>
 </div>
 
@@ -1326,7 +1338,11 @@ function toggleSettings(force){
   m.classList.toggle('show',open);
   document.getElementById('settings-backdrop').classList.toggle('show',open);
   document.getElementById('nav-settings').classList.toggle('open',open);
+  // version + screen numbers, to check on the phone which build is loaded
+  const f=window.__hfix||{};
+  if(open)document.getElementById('app-ver').textContent=`Версия ${APP_VERSION} · экран ${f.screen||screen.height} · окно ${f.inner} · 100vh ${f.vh||'—'} · итог ${f.used}${f.standalone?' · с экрана «Домой»':''}`;
 }
+const APP_VERSION='20.10 №3';
 function setTheme(pref){
   localStorage.setItem('theme_pref',pref);
   applyTheme();
